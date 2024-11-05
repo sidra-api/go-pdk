@@ -30,7 +30,7 @@ type Server struct {
 
 func NewServer(name string, access func(Request) Response) *Server {
 	return &Server{
-		sockPath: "/tmp/" + name,
+		sockPath: "/tmp/" + name + ".sock",
 		access: access,
 	}
 }
