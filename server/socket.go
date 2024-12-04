@@ -68,6 +68,7 @@ func (s *Server) Start() error {
 		// Handle each connection in a goroutine
 			go s.handleConnection(conn, s.access)
 	}
+	return nil
 }
 
 // handleConnection processes individual client connections
