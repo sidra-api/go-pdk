@@ -62,7 +62,7 @@ func (s *Server) Start() error {
 		conn, err := s.listener.Accept()
 		if err != nil {
 			log.Printf("Error accepting connection: %v", err)
-			continue
+			break
 		}
 
 		// Handle each connection in a goroutine
