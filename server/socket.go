@@ -29,8 +29,12 @@ type Server struct {
 }
 
 func NewServer(name string, access func(Request) Response) *Server {
+	path := "/tmp/" + name + ".sock"
+	if _, err := os.Stat(path); err == nil {
+		log.Fatalf("Socket file %s already exists. Exiting.", path)
+	}
 	return &Server{
-		sockPath: "/tmp/" + name + ".sock",
+		sockPath: path,
 		access: access,
 	}
 }
