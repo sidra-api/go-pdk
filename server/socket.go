@@ -79,7 +79,7 @@ func (s *Server) Start() error {
 func (s *Server) handleConnection(conn net.Conn, access func(Request) Response) {
 	defer conn.Close()
 
-	buffer := make([]byte, 1024)
+	buffer := make([]byte, 602768)
 	for {
 		n, err := conn.Read(buffer)
 		if err != nil {
