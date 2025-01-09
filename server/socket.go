@@ -6,26 +6,27 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 )
 
 type Request struct {
-	Method string
-	Path string
+	Method  string
+	Path    string
 	Headers map[string]string
-	Body string
+	Body    string
 }
 
 type Response struct {
 	StatusCode int
-	Headers map[string]string
-	Body string
+	Headers    map[string]string
+	Body       string
 }
 
 type Server struct {
 	listener net.Listener
 	sockPath string
-	access func(Request) Response
+	access   func(Request) Response
 }
 
 func NewServer(name string, access func(Request) Response) *Server {
@@ -42,7 +43,7 @@ func NewServer(name string, access func(Request) Response) *Server {
 	}
 	return &Server{
 		sockPath: path,
-		access: access,
+		access:   access,
 	}
 }
 
@@ -77,7 +78,7 @@ func (s *Server) Start() error {
 		}
 
 		// Handle each connection in a goroutine
-			go s.handleConnection(conn, s.access)
+		go s.handleConnection(conn, s.access)
 	}
 	return nil
 }
@@ -85,8 +86,13 @@ func (s *Server) Start() error {
 // handleConnection processes individual client connections
 func (s *Server) handleConnection(conn net.Conn, access func(Request) Response) {
 	defer conn.Close()
-
-	buffer := make([]byte, 602768)
+	maxMessageSize := 16384
+	if size, err := strconv.Atoi(os.Getenv("MAX_MESSAGE_SIZE")); err == nil {
+		maxMessageSize = size
+	} else {
+		log.Printf("Invalid MAX_MESSAGE_SIZE value, using default: %v", err)
+	}	
+	buffer := make([]byte, maxMessageSize)
 	for {
 		n, err := conn.Read(buffer)
 		if err != nil {
@@ -121,11 +127,11 @@ func (s *Server) handleShutdown() {
 
 	<-sigChan
 	log.Println("Shutting down socket server...")
-	
+
 	if err := s.listener.Close(); err != nil {
 		log.Printf("Error closing listener: %v", err)
 	}
-	
+
 	// Clean up the socket file
 	if err := os.RemoveAll(s.sockPath); err != nil {
 		log.Printf("Error removing socket file: %v", err)
