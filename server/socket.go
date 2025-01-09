@@ -78,13 +78,13 @@ func (s *Server) Start() error {
 		}
 
 		// Handle each connection in a goroutine
-		go s.handleConnection(conn, s.access)
+		go s.handleConnection(conn)
 	}
 	return nil
 }
 
 // handleConnection processes individual client connections
-func (s *Server) handleConnection(conn net.Conn, access func(Request) Response) {
+func (s *Server) handleConnection(conn net.Conn) {
 	defer conn.Close()
 	maxMessageSize := 16384
 	if size, err := strconv.Atoi(os.Getenv("MAX_MESSAGE_SIZE")); err == nil {
